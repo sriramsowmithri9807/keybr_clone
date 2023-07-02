@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keybr Clone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+        }
+        
+        .text-container {
+            margin-bottom: 20px;
+        }
+        
+        .text {
+            font-size: 24px;
+            line-height: 1.5;
+        }
+        
+        .input {
+            font-size: 24px;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .stat-item {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-container">
+            <p class="text">Type the following text:</p>
+            <p class="text">Hello, World!</p>
+        </div>
+        
+        <input type="text" class="input" placeholder="Start typing...">
+        
+        <div class="stats">
+            <div class="stat-item">Time: <span id="time">00:00</span></div>
+            <div class="stat-item">Accuracy: <span id="accuracy">0%</span></div>
+            <div class="stat-item">WPM: <span id="wpm">0</span></div>
+        </div>
+    </div>
+    
+    <script>
+        const textElement = document.querySelector('.text');
+        const inputElement = document.querySelector('.input');
+        const timeElement = document.getElementById('time');
+        const accuracyElement = document.getElementById('accuracy');
+        const wpmElement = document.getElementById('wpm');
+        
+        let startTime = null;
+        let endTime = null;
+        
+        inputElement.addEventListener('keydown', startTimer);
+        inputElement.addEventListener('input', updateText);
+        
+        function startTimer() {
+            if (startTime === null) {
+                startTime = new Date().getTime();
+            }
+        }
+        
+        function updateText() {
+            const typedText = inputElement.value;
+            const originalText = textElement.innerText.trim();
+            const typedLength = typedText.length;
+            const originalLength = originalText.length;
+            const typedWords = typedText.split(' ').filter(Boolean).length;
+            const timeElapsed = (new Date().getTime() - startTime) / 1000;
+            const wordsPerMinute = Math.round((typedWords / timeElapsed) * 60);
+            
+            let accuracy = 0;
+            if (typedLength > 0) {
+                const correctCharacters = countCorrectCharacters(typedText, originalText);
+                accuracy = (correctCharacters / typedLength) * 100;
+            }
+            
+            timeElement.textContent = formatTime(timeElapsed);
+            accuracyElement.textContent = accuracy.toFixed(2) + '%';
+            wpmElement.textContent = wordsPerMinute;
+            
+            if (typedText === originalText) {
+                endTimer();
+            }
+        }
+        
+        function countCorrectCharacters(typedText, originalText) {
+            let count = 0;
+            for (let i = 0; i < typedText.length; i++) {
+                if (typedText[i] === originalText[i]) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        function endTimer() {
+            endTime = new Date().getTime();
+            const timeElapsed = (endTime - startTime) / 1000;
+            const wordsPerMinute = Math.round((textElement.innerText.trim().split(' ').length / timeElapsed) * 60);
+            wpmElement.textContent = wordsPerMinute;
+            inputElement.disabled = true;
+        }
+        
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
